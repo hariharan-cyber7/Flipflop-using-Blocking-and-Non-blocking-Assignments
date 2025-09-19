@@ -28,23 +28,256 @@ Take screenshots of the waveform window and include them in your lab report to d
 You can include the timing diagram from the simulation window showing the correct functionality of the Seven Segment across different select inputs and data inputs. 
 Close the Simulation Once done, by going to Simulation → "Close Simulation
 
-Input/Output Signal Diagram:
 
-D FF
+## RTL CODE:
+D Flip Flop
+```verilog
+module d_ff (
+    input D,
+    input clk,
+    input rst,
+    output reg Q
+);
 
-SR FF
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        Q <= 0;
+    else
+        Q <= D;
+end
 
-JK FF
+endmodule
+```
 
-T FF
+SR Flip Flop
+```verilog
+module sr_ff (
+    input S,
+    input R,
+    input clk,
+    input rst,
+    output reg Q
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        Q <= 0;
+    else begin
+        case ({S,R})
+            2'b00: Q <= Q;
+            2'b01: Q <= 0;
+            2'b10: Q <= 1;
+            2'b11: Q <= 1'bx;
+        endcase
+    end
+end
+
+endmodule
+```
+
+JK Flip Flop
+```verilog
+module jk_ff (
+    input J,
+    input K,
+    input clk,
+    input rst,
+    output reg Q
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        Q <= 0;
+    else begin
+        case ({J,K})
+            2'b00: Q <= Q;
+            2'b01: Q <= 0;
+            2'b10: Q <= 1;
+            2'b11: Q <= ~Q;
+        endcase
+    end
+end
+
+endmodule
+```
+
+T Flip Flop
+```verilog
+module t_ff (
+    input T,
+    input clk,
+    input rst,
+    output reg Q
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        Q <= 0;
+    else if (T)
+        Q <= ~Q;
+    else
+        Q <= Q;
+end
+
+endmodule
+```
 
 
-RTL Code:
+## TestBench:
 
-TestBench:
+D Flip Flop
+```verilog
+`timescale 1ns/1ps
+module tb_d_ff;
 
-Output waveform:
+reg D, clk, rst;
+wire Q;
 
-Conclusion:
+d_ff uut (
+    .D(D),
+    .clk(clk),
+    .rst(rst),
+    .Q(Q)
+);
 
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0; rst = 1; D = 0;
+    #10 rst = 0;
+    #10 D = 1;
+    #10 D = 0;
+    #10 D = 1;
+    #20 $finish;
+end
+
+endmodule
+```
+
+SR Flip Flop
+```verilog
+`timescale 1ns/1ps
+module tb_sr_ff;
+
+reg S, R, clk, rst;
+wire Q;
+
+sr_ff uut (
+    .S(S),
+    .R(R),
+    .clk(clk),
+    .rst(rst),
+    .Q(Q)
+);
+
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0; rst = 1; S = 0; R = 0;
+    #10 rst = 0;
+    #10 S = 0; R = 0;
+    #10 S = 1; R = 0;
+    #10 S = 0; R = 1;
+    #10 S = 1; R = 1;
+    #10 S = 0; R = 0;
+    #20 $finish;
+end
+
+endmodule
+```
+
+JK Flip Flop
+```verilog
+`timescale 1ns/1ps
+module tb_jk_ff;
+
+reg J, K, clk, rst;
+wire Q;
+
+jk_ff uut (
+    .J(J),
+    .K(K),
+    .clk(clk),
+    .rst(rst),
+    .Q(Q)
+);
+
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0; rst = 1; J = 0; K = 0;
+    #10 rst = 0;
+    #10 J = 0; K = 0;
+    #10 J = 0; K = 1;
+    #10 J = 1; K = 0;
+    #10 J = 1; K = 1;
+    #20 $finish;
+end
+
+endmodule
+```
+
+T Flip Flop
+```verilog
+`timescale 1ns/1ps
+module tb_t_ff;
+
+reg T, clk, rst;
+wire Q;
+
+t_ff uut (
+    .T(T),
+    .clk(clk),
+    .rst(rst),
+    .Q(Q)
+);
+
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0; rst = 1; T = 0;
+    #10 rst = 0;
+    #10 T = 0;
+    #10 T = 1;
+    #10 T = 1;
+    #10 T = 0;
+    #10 T = 1;
+    #20 $finish;
+end
+
+endmodule
+```
+
+
+## Output waveform:
+
+D Flip Flop
+![WhatsApp Image 2025-09-16 at 20 37 19_167b616a](https://github.com/user-attachments/assets/44cf1980-4b48-4c39-a15c-da90f5797ad7)
+
+
+SR Flip Flop
+![WhatsApp Image 2025-09-16 at 21 02 36_40748ab0](https://github.com/user-attachments/assets/95bba1e6-cfe5-417d-823c-b337d0fe7a77)
+
+
+JK Flip Flop
+![WhatsApp Image 2025-09-16 at 20 47 11_34f2e35b](https://github.com/user-attachments/assets/9165fb4f-8640-46fb-99ee-b719943795d2)
+
+
+T Flip Flop
+![WhatsApp Image 2025-09-16 at 20 55 57_a212fef6](https://github.com/user-attachments/assets/99c897e2-69e3-4cb6-8feb-ef2834240ec1)
+
+
+## Conclusion:
+
+All four flip-flops (D, JK, T, SR) were successfully designed and simulated in Verilog using Vivado 2023.1. The outputs matched theoretical truth tables:
+
+  D Flip-Flop stored input D on clock edge.
+
+  JK Flip-Flop performed set, reset, hold, and toggle operations.
+
+  T Flip-Flop toggled output on each clock when T=1.
+
+  SR Flip-Flop performed set/reset operations with invalid state for S=R=1.
+
+Thus, the functionality of basic sequential circuits was verified using simulation.
 
